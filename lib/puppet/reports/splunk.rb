@@ -22,13 +22,17 @@ Puppet::Reports.register_report(:splunk) do
 
   def process
     output = self.logs.inject([]) do |a, log|
-      a.concat(["#{log.source}: #{log.message}"])
+      a.concat(["#{log.source}: #{log.message.gsub(/%/, '%%')}"])
     end
 
     @host = self.host
     self.status == 'failed' ? @failed = true : @failed = false
     @start_time = self.logs.first.time
-    @elapsed_time = metrics["time"]["total"]
+    if metrics["time"]
+      @elapsed_time = metrics["time"]["total"] 
+    else
+      @elapsed_time = self.logs.last.time - self.logs.first.time
+    end
 
     if metrics["resources"]
       @resource_count = {
