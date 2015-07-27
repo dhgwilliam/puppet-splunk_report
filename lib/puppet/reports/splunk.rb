@@ -22,7 +22,7 @@ Puppet::Reports.register_report(:splunk) do
 
   def process
     output = self.logs.inject([]) do |a, log|
-      a.concat(["#{log.source}: #{log.message}"])
+      a.concat(["#{log.source}: #{log.message.gsub(/%/, '%%')}"])
     end
 
     @host = self.host
